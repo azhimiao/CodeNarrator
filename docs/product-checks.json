@@ -1,0 +1,12 @@
+{
+  "markdown_files": 28,
+  "characters": 110631,
+  "chapters": 157,
+  "chunks": 68,
+  "max_source_lines": 160,
+  "notebook_cells": 41,
+  "natural_language_file_format_passed": true,
+  "internal_links_passed": true,
+  "original_license_preserved": true,
+  "limitation": "文件格式检查不证明所有正文语义正确。"
+}

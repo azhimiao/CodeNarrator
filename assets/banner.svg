@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="440" viewBox="0 0 1280 440" role="img" aria-labelledby="title desc">
+  <title id="title">CodeNarrator — Make software legible.</title>
+  <desc id="desc">A connected repository becomes an independently readable natural-language repository.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0c1721"/><stop offset="1" stop-color="#132e36"/></linearGradient>
+    <linearGradient id="line"><stop stop-color="#48717a" stop-opacity=".2"/><stop offset="1" stop-color="#8ce4d3"/></linearGradient>
+    <radialGradient id="glow"><stop stop-color="#5ec8b5" stop-opacity=".12"/><stop offset="1" stop-color="#5ec8b5" stop-opacity="0"/></radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#aac5c5" stroke-opacity=".045"/></pattern>
+  </defs>
+  <rect width="1280" height="440" rx="22" fill="url(#bg)"/>
+  <rect width="1280" height="440" rx="22" fill="url(#grid)"/>
+  <ellipse cx="1020" cy="210" rx="370" ry="300" fill="url(#glow)"/>
+  <g font-family="Inter, Segoe UI, Arial, sans-serif">
+    <rect x="64" y="57" width="195" height="27" rx="13.5" fill="#173b3f" stroke="#3d726e"/>
+    <circle cx="80" cy="70.5" r="3" fill="#8ce4d3"/>
+    <text x="92" y="75" fill="#a0dfd2" font-size="10" letter-spacing="1.7">A READABLE CODEBASE</text>
+    <text x="60" y="171" fill="#f3f2e9" font-size="68" font-weight="700" letter-spacing="-3">CodeNarrator</text>
+    <text x="64" y="225" fill="#a2ddcf" font-size="30" font-weight="400" letter-spacing="-.5">Make software legible.</text>
+    <text x="65" y="283" fill="#9eb2b7" font-size="16">Architecture. Behavior. State. Every meaningful detail.</text>
+    <path d="M65 319H540" stroke="#355057"/>
+    <text x="65" y="351" fill="#6e9299" font-size="11" letter-spacing="2">FROM IMPLEMENTATION TO UNDERSTANDING</text>
+    <g fill="none" stroke="url(#line)" stroke-width="1.5">
+      <path d="M689 147H732V215H770M689 215H770M689 283H732V215"/>
+      <path d="M808 215H848"/>
+      <path d="M841 209L848 215L841 221"/>
+    </g>
+    <g fill="#132b35" stroke="#3c626a">
+      <rect x="619" y="125" width="70" height="44" rx="8"/>
+      <rect x="619" y="193" width="70" height="44" rx="8"/>
+      <rect x="619" y="261" width="70" height="44" rx="8"/>
+    </g>
+    <g fill="#88a9af" font-size="13" text-anchor="middle" font-family="Consolas, monospace">
+      <text x="654" y="152">{ }</text><text x="654" y="220">f(x)</text><text x="654" y="288">[ ]</text>
+    </g>
+    <circle cx="789" cy="215" r="19" fill="#173e42" stroke="#6abfae"/>
+    <path d="M781 215L787 221L798 208" fill="none" stroke="#9ee5d4" stroke-width="2"/>
+    <rect x="869" y="93" width="327" height="251" rx="12" fill="#152e36" stroke="#42676b"/>
+    <path d="M869 133H1196" stroke="#36545b"/>
+    <circle cx="889" cy="113" r="3" fill="#78cdb9"/>
+    <text x="902" y="117" fill="#a9c5c6" font-size="11" letter-spacing="1">THE NATURAL-LANGUAGE REPOSITORY</text>
+    <text x="892" y="172" fill="#f0efdf" font-size="19" font-weight="600">A system, understood.</text>
+    <g fill="#a2bfc1" font-size="14">
+      <text x="905" y="209">How the pieces work together</text>
+      <text x="905" y="241">What happens to your data</text>
+      <text x="905" y="273">Where behavior meets its limits</text>
+    </g>
+    <g fill="#81cbbb"><circle cx="893" cy="204" r="2"/><circle cx="893" cy="236" r="2"/><circle cx="893" cy="268" r="2"/></g>
+    <path d="M892 300H1172" stroke="#36545b"/>
+    <text x="892" y="323" fill="#78c3b1" font-size="11" letter-spacing="1">READ · QUESTION · VERIFY</text>
+    <text x="1195" y="390" fill="#60868b" font-size="10" text-anchor="end" letter-spacing="2">CODENARRATOR / V1</text>
+  </g>
+</svg>

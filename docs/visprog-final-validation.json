@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "snapshot": "ac69d39d4becf9cdbf6a81a2752fc4852c1db1c817797ec06633c3a8a9e33398",
+  "passed": true,
+  "files": 16,
+  "units_total": 2105,
+  "units_covered": 2105,
+  "missing_units": [],
+  "changed_files": [],
+  "errors": [],
+  "warnings": [],
+  "limitation": "结构检查不证明语义正确或用户理解效果；复核方式由生成者记录。"
+}

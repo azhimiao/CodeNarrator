@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.forward-test/
+.install-test/
+examples/build-*/
+examples/real-sampleproject/
+dist/
+research/understand-anything/
+research/visprog/
+research/visprog-audit/
+.env
+.env.*
+!.env.example
+*.pem
+*.key

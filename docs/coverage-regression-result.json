@@ -1,0 +1,11 @@
+{
+  "purpose": "反例：全部语义细节被空泛文字替代，但保留结构 ID 与源码依据引用。",
+  "mechanical_check_passed": false,
+  "units_total": 62,
+  "units_covered": 62,
+  "errors": [
+    "译文已变化或尚未完成语义复核；请重新核查 model.json，不能仅刷新指纹"
+  ],
+  "forged_fresh_review_passed": true,
+  "conclusion": "新版拒绝沿用旧复核，但若生成者虚假刷新复核指纹，仍无法靠确定性检查识别所有语义错误。因此必须用具体行为契约与独立阅读检查，不能把一致性检查当语义准确率。"
+}

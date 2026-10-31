@@ -1,0 +1,8 @@
+{
+  "purpose": "反例：全部语义细节被空泛文字替代，但保留结构 ID 与源码依据引用。",
+  "mechanical_check_passed": true,
+  "units_total": 62,
+  "units_covered": 62,
+  "errors": [],
+  "conclusion": "结构检查通过不能作为已理解或已完整翻译的验收证据。review 状态是声明，不是独立复核。"
+}

@@ -1,0 +1,23 @@
+{
+  "repository": "https://github.com/allenai/visprog",
+  "commit": "9626868c0d1007c41d8f210fe99f5c1facc3325f",
+  "files": {
+    ".gitignore": "6a4e0090289dfa07b357c8610d7a617ac74cec054d58626fd4222ed20fe5c234",
+    "LICENSE": "ea78f5805982ac0cd832ad528949507f0d8c8566c0ef8d7fdc448ae006e1c369",
+    "README.md": "273bf9add74b7f591523f9c2556978250f70961f852e12cf58d4287b02b3ef58",
+    "engine/nms.py": "a607f7b17ab1bc1b6ec65abbe3caff485f6f6dbca94d56d4238eb171938bc079",
+    "engine/step_interpreters.py": "70434dafe7a6525af55f07a744c3e6160d9f1cd318638c63475c303f2285e022",
+    "engine/utils.py": "e581ea7f37a3e89214723db340c1ec8f64c9f7d0f4e6ddfcd83bfb3a1d785848",
+    "environment.yaml": "9f84ad7e0d2968b0176107cd11a079ccda3cc4cd94b421c04595820f28959d72",
+    "notebooks/gqa.ipynb": "a5fdcd4993bb641a54e8fc0b06b2311fd6b7d0ad04bbaa71229381b721167ab3",
+    "notebooks/image_editing.ipynb": "5d1bd340bfe28c2d57fa7289619ce7c471a418d69f610dc8356a36725d7a51a6",
+    "notebooks/nlvr.ipynb": "9393312cde4fee369f72f886f30c26dfd4cebd41d8769688fc8d783d94880180",
+    "notebooks/ok_det.ipynb": "d34103f866ce3a710870f44373f64d16813780afc6ff7b7756a28990162037a7",
+    "prompts/gqa.py": "f0a8b8b41bbc55a22a7ba859fd2419dbe430acc8403d5cfb3d84605bfc296b99",
+    "prompts/imgedit.py": "5c83388506c38b38a599081fe686849aa3d9ce63fbdda8c9c416056e86332c04",
+    "prompts/knowtag.py": "18fd4a48b7876fa1c1f3afc04fb81aa27e0a1e65abfccd0d882b458e1bb7b924",
+    "prompts/nlvr.py": "760111157b8e09dcc57cc51de34d0a4a69741e4b9c365eca702cd9da2d81781d",
+    "vis_utils.py": "76333991d852fded21de5c9e1845444160a73c43726f3902211e1550f915c218"
+  },
+  "hash_policy": "sha256-lf-normalized"
+}

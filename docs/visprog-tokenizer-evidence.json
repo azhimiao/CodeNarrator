@@ -1,0 +1,52 @@
+{
+  "runtime": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+  "basis": "https://github.com/python/cpython/blob/v3.10.14/Lib/tokenize.py",
+  "cases": [
+    {
+      "tokenizer": "cpython-v3.10.14-tokenizer",
+      "line": "ANSWER0=VQA(image=LEFT,question='Does the image have a bag with the characters from Disney's Frozen on it?')",
+      "parsed": {
+        "output_var": "ANSWER0",
+        "step_name": "VQA",
+        "args": {
+          "image": "LEFT",
+          "question": "'Does the image have a bag with the characters from Disney'",
+          "s": "Frozen",
+          "on": "it",
+          "?": "'"
+        }
+      }
+    },
+    {
+      "tokenizer": "cpython-v3.10.14-tokenizer",
+      "line": "ANSWER1=VQA(Image=RIGHT,question='Does the image have a bag with the characters from Disney's Frozen on it?')",
+      "parsed": {
+        "output_var": "ANSWER1",
+        "step_name": "VQA",
+        "args": {
+          "Image": "RIGHT",
+          "question": "'Does the image have a bag with the characters from Disney'",
+          "s": "Frozen",
+          "on": "it",
+          "?": "'"
+        }
+      }
+    },
+    {
+      "tokenizer": "current-runtime-tokenizer",
+      "line": "ANSWER0=VQA(image=LEFT,question='Does the image have a bag with the characters from Disney's Frozen on it?')",
+      "parsed": {
+        "error_type": "TokenError",
+        "message": "('unterminated string literal (detected at line 1)', (1, 107))"
+      }
+    },
+    {
+      "tokenizer": "current-runtime-tokenizer",
+      "line": "ANSWER1=VQA(Image=RIGHT,question='Does the image have a bag with the characters from Disney's Frozen on it?')",
+      "parsed": {
+        "error_type": "TokenError",
+        "message": "('unterminated string literal (detected at line 1)', (1, 108))"
+      }
+    }
+  ]
+}

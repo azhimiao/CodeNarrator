@@ -1,0 +1,4 @@
+interface:
+  display_name: "CodeNarrator"
+  short_description: "将完整 Python 项目转换为无需阅读源码即可理解实现的纯自然语言仓库"
+  default_prompt: "使用 $code-narrator 将这个仓库完整翻译为可以独立阅读的中文自然语言仓库。"

@@ -1,0 +1,811 @@
+{
+  "verification": {
+    "method": "独立阅读验证：扮演具备基础编程知识、事先不了解 VisProg 的学生，仅根据交付 Markdown 回答。文档内关于源码及既有验收的说法只当作交付文本，不作为本次实际查验源码或运行测试的证据。",
+    "output": "F:/TranslatorCode/.forward-test/visprog-reader.json",
+    "input_boundary": "仅阅读指定目录内 Markdown；未读取目录外源码、构建记录、其他资料或访问网络。未执行 VisProg、视觉模型或远端补全。",
+    "skill_boundary": "skill-creator 的 SKILL.md 位于允许阅读的目录之外，因此没有读取；本次按用户明确指定的独立读者角色、八个问题和报告格式完成，不宣称核对了未读取的规范全文。",
+    "substantive_contradictions": "未发现八题所涉核心行为在文档之间有直接矛盾。上下裁图的名称与空框回退不符、Loc2 的返回值与状态不一致、提示描述与示例行为不符，均已由正文明确指出，属于所述系统行为或示例缺陷，不能误报为文档自相矛盾。",
+    "cross_file_relations": "入口→提示→生成器→任务登记→逐行执行→状态与展示的主要关系可以串联；Loc2、COUNT、分类与 TAG 的接口限制也能通过合读步骤章节确定。可独立重建提示全文、精确解析符号及部分数值边界仍有缺口，见 gaps。"
+  },
+  "reading_scope": {
+    "root": "F:/TranslatorCode/examples/visprog自然语言仓库",
+    "markdown_count": 28,
+    "coverage": "完整阅读以下 28 份 Markdown；重点复读执行核心、全部步骤、四个提示文件和四个入口。目录内文档提及的外部文件、链接、源代码和第三方资料均未打开。",
+    "files": [
+      "F:/TranslatorCode/examples/visprog自然语言仓库/开始阅读.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/项目总览.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/阅读路线.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/项目目录.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/架构与状态.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/跨模块流程.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/数据说明.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/依赖说明.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/术语说明.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/行为验收.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/未确定事项.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/版本与完整性说明.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/模块/README.md.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/模块/environment.yaml.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/模块/.gitignore.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/模块/LICENSE.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/utils.py.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/nms.py.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/模块/vis_utils.py.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/模块/notebooks/gqa.ipynb.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/模块/notebooks/nlvr.ipynb.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/模块/notebooks/image_editing.ipynb.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/模块/notebooks/ok_det.ipynb.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/模块/prompts/gqa.py.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/模块/prompts/nlvr.py.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/模块/prompts/imgedit.py.md",
+      "F:/TranslatorCode/examples/visprog自然语言仓库/模块/prompts/knowtag.py.md"
+    ]
+  },
+  "answers": [
+    {
+      "question": "1. 四个入口分别怎样准备提示与执行，有没有统一主程序？",
+      "answer": "没有自动启动的统一命令或统一主程序。四个 Notebook 是真实入口，共用生成、状态和执行核心。四者按保存单元格顺序先将运行工作目录的上一级绝对路径加入模块查找列表，填写 OPENAI_API_KEY，导入图像、显示、核心和任务提示，按任务名创建执行器。注册会立即创建该任务全部步骤并可能加载模型；不是生成程序后才按需加载。\n\ngqa.ipynb：任务名 gqa，用 partial 固定提示方式为 all。使用全部十九个保存字符串，实际承载二十个问答片段；不是提示函数默认的随机八条。读取 camel1 图，按比例缩至 640×640 以内并转 RGB，初始状态键为 IMAGE。将“图中有多少人或动物”通过 question 字段交给生成器。\n\nnlvr.ipynb：任务名 nlvr，用 partial 固定 all，使用全部十二条示例；不是默认随机八条。两张 camel 图均缩至 640×640 以内并转 RGB，状态键为 LEFT、RIGHT。把“恰好一图有穿黑衣女子且两图共两头骆驼”的陈述通过 statement 字段交给生成器。\n\nimage_editing.ipynb：任务名 imageEdit，提示过程把传入指令字符串填入十段示例组成的静态模板的 instruction 位置。bollywood 图按比例缩至 512×512 以内并转 RGB，以 IMAGE 存入状态。实际指令为按 person 类别把穿黑色亨利领上衣的男子换成砖墙；直接传字符串，不使用 question 字典。\n\nok_det.ipynb：任务名 okDet，将指令字符串填入十三段示例模板的 instruction，并把可变 list_max 填成 20；示例中明确的 4、10、1、7 不被替换。bollywood 图以 ANTIALIAS 缩至 640×640 以内并转 RGB，状态键为 IMAGE；直接传入标注著名宝莱坞演员的指令字符串。\n\n四者均先创建生成器，默认温度 0.7、top-p 0.5；创建时不请求补全。实际生成调用 text-davinci-003，一次取完整程序，打印文本并丢弃返回的概率指标；再把程序文本与初始字典交给执行器，明确开启检查模式。正常完成时取得最后一行结果、共享状态、拼接 HTML，再分别显示结果与过程。异常中断后续行，已有状态不回滚。",
+      "citations": [
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/项目总览.md",
+          "section": "项目组成",
+          "anchor": null,
+          "lines": [
+            5,
+            7
+          ],
+          "supports": "四个 Notebook 为真实入口，没有自动启动的统一命令。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/notebooks/gqa.ipynb.md",
+          "section": "第1～8个单元格／完整过程",
+          "anchor": "section-2",
+          "lines": [
+            25,
+            117
+          ],
+          "supports": "路径、凭据、gqa、all、单图状态、question 输入及检查执行。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/notebooks/nlvr.ipynb.md",
+          "section": "第4～8个单元格／完整过程",
+          "anchor": "section-5",
+          "lines": [
+            61,
+            117
+          ],
+          "supports": "nlvr、全部十二例、双图状态、statement 输入及检查执行。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/notebooks/image_editing.ipynb.md",
+          "section": "第4～10个单元格／完整过程",
+          "anchor": "section-5",
+          "lines": [
+            61,
+            141
+          ],
+          "supports": "imageEdit、instruction 模板、512 尺寸、字符串输入及结果与 HTML 显示。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/notebooks/ok_det.ipynb.md",
+          "section": "第4～8个单元格／完整过程",
+          "anchor": "section-5",
+          "lines": [
+            61,
+            117
+          ],
+          "supports": "okDet、list_max=20、640 尺寸、演员指令及检查执行。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/prompts/gqa.py.md",
+          "section": "保存的示例及其实际差异；组装本次提示",
+          "anchor": "section-1",
+          "lines": [
+            15,
+            29
+          ],
+          "supports": "十九个字符串、二十片段，以及 all 与 random 的区别。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/prompts/knowtag.py.md",
+          "section": "保存的示例及其实际差异／完整过程",
+          "anchor": "section-1",
+          "lines": [
+            15,
+            17
+          ],
+          "supports": "可变上限和明确数字的区别。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/utils.py.md",
+          "section": "用少量示例提示生成整段程序／完整过程",
+          "anchor": "section-4",
+          "lines": [
+            55,
+            57
+          ],
+          "supports": "生成器默认参数、模型、一次补全、概率返回和不自动验证。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "按任务创建并登记允许的步骤／完整过程",
+          "anchor": "section-34",
+          "lines": [
+            531,
+            531
+          ],
+          "supports": "立即实例化任务内全部步骤。"
+        }
+      ]
+    },
+    {
+      "question": "2. 执行器收到已有 Program 对象与另一个初始状态时采用哪个状态？程序的结果步骤之后还有一行会怎样？",
+      "answer": "采用已有 Program 对象自身的状态，另外传入的 init_state 在这条路径上不会采用，也不会合并或替换。只有收到程序字符串时，才用字符串和传入初始状态创建 Program；各行小程序复用整段程序的同一状态引用。\n\nRESULT 只读取 var 指定的状态项并返回，不创建它左侧名字对应的状态项，也不终止调度。其后还有正常指令就继续执行，整段最终返回最后一行的结果；普通模式连同共享状态返回，检查模式再附整段展示。若后续行依赖 RESULT 左侧那个未建立的名字且状态中原本没有它，会遇到缺变量失败；若追加的是空行，也不会被跳过，可能解析失败。失败时没有正常的整段返回，已经写入的状态保留。",
+      "citations": [
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/utils.py.md",
+          "section": "保存程序文本与共享状态／完整过程",
+          "anchor": "section-2",
+          "lines": [
+            29,
+            29
+          ],
+          "supports": "直接保存初始状态引用，不滤除空行。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/utils.py.md",
+          "section": "逐行分派步骤并返回最后一行结果／完整过程",
+          "anchor": "section-3",
+          "lines": [
+            41,
+            43
+          ],
+          "supports": "已有 Program 忽略另传初始状态；执行全部行、返回最后结果、失败不回滚。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "读取指定状态作为步骤结果／完整过程",
+          "anchor": "section-8",
+          "lines": [
+            109,
+            109
+          ],
+          "supports": "RESULT 不写左侧输出名，也不会使调度器提前停止。"
+        }
+      ]
+    },
+    {
+      "question": "3. 普通定位和外部知识定位的状态与检查模式返回值有什么差异？",
+      "answer": "普通定位是 gqa 的 LOC：输出状态保存原始框列表，同时无论是否开启检查都复制原图并画框，保存到输出名加 _IMAGE 的伴随状态。默认首框红色、其余蓝色。普通模式返回框列表；检查模式返回框列表与展示文本。目标恰好是 TOP、BOTTOM、LEFT、RIGHT 时走几何半图捷径，不调用目标检测。\n\n外部知识定位是 okDet 登记为 LOC 的 Loc2。它始终调用模型检测，TOP 等也不走几何捷径；把每个框包装成含 box、category 的对象字典，输出状态保存对象字典列表，不保存 _IMAGE。普通模式返回对象列表；检查模式另画全部蓝框并生成展示，但步骤返回的是原始框列表与展示，而非状态中的对象列表。后续行按变量名读取状态，取得的仍是对象字典列表。若该定位恰好是最后一行，整段执行的最终结果也会体现这种返回值与状态的类型差异。普通 LOC 默认得分/去重阈值为 0.1/0.5；okDet 注册 Loc2 时改为 0.05/0.3。",
+      "citations": [
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "定位文字描述的目标并保存候选框／完整过程",
+          "anchor": "section-10",
+          "lines": [
+            141,
+            143
+          ],
+          "supports": "普通定位阈值、几何捷径、框状态、_IMAGE 与画框配色。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "为外部知识标注提供对象列表／完整过程",
+          "anchor": "section-11",
+          "lines": [
+            159,
+            159
+          ],
+          "supports": "Loc2 的对象状态、无伴随图、无几何捷径、检查时返回原框。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "按任务创建并登记允许的步骤／完整过程",
+          "anchor": "section-34",
+          "lines": [
+            531,
+            531
+          ],
+          "supports": "gqa/okDet 的 LOC 实现和 Loc2 的注册阈值。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/utils.py.md",
+          "section": "逐行分派步骤并返回最后一行结果／完整过程",
+          "anchor": "section-3",
+          "lines": [
+            43,
+            43
+          ],
+          "supports": "最终返回最后一步结果；据此可得定位处于末行时的影响。"
+        }
+      ]
+    },
+    {
+      "question": "4. 相对裁图在没有候选框时的行为是什么，哪些名称不代表专门的空间算法？",
+      "answer": "这里的“没有候选框”指状态项存在但框列表为空，不是框状态名不存在。CROP_RIGHTOF 无框时裁右半图；CROP_LEFTOF 无框时裁左半图。CROP_ABOVE 与 CROP_BELOW 无框时实际都裁左半图，不能按名称补成上半或下半。有框时这四者只看第一个框，以框的横向或纵向中心作为分界，不对所有框逐一裁剪。\n\n通用 CROP 无框时直接返回原图对象并保存为输出，与输入共享同一图像引用；有框时只围绕首框按默认 1.5 倍扩大裁图。CROP_FRONTOF、CROP_INFRONT、CROP_INFRONTOF、CROP_BEHIND、CROP_AHEAD 五个名字都只是这个通用裁图的别名，未增加前后、遮挡或深度推理；无框时也复用原图。\n\n这些裁图的检查展示还要读取框名加 _IMAGE 的伴随图，因此“空列表有回退行为”不等于检查模式在缺伴随图时也一定成功。文档给出部分右下坐标为宽/高减一，并明确指出与 Pillow 排他裁剪约定混用；不能把名称中的“半图”理解为已证明像素边界完全对称。",
+      "citations": [
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "围绕第一个候选框裁出图像／完整过程",
+          "anchor": "section-13",
+          "lines": [
+            191,
+            195
+          ],
+          "supports": "通用 CROP 的首框、1.5 倍、空框引用和检查所需伴随图。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "裁出首个目标中心右侧／完整过程",
+          "anchor": "section-14",
+          "lines": [
+            207,
+            207
+          ],
+          "supports": "右侧中心分界及无框裁右半。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "裁出首个目标中心左侧／完整过程",
+          "anchor": "section-15",
+          "lines": [
+            223,
+            223
+          ],
+          "supports": "左侧中心分界及无框裁左半。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "裁出首个目标中心上方；裁出首个目标中心下方／完整过程",
+          "anchor": "section-16",
+          "lines": [
+            239,
+            255
+          ],
+          "supports": "ABOVE、BELOW 的无框路径都实际取左半。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "名为前方的通用裁图别名；名为在前的通用裁图别名；另一种前方用词的裁图别名；名为后方的通用裁图别名；名为前面的通用裁图别名／完整过程",
+          "anchor": "section-18",
+          "lines": [
+            263,
+            335
+          ],
+          "supports": "五个前后名称均继承通用 CROP。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/nms.py.md",
+          "section": "按置信度去掉重叠候选框／完整过程",
+          "anchor": "section-1",
+          "lines": [
+            15,
+            15
+          ],
+          "supports": "闭区间框与 Pillow 右下排他裁图的区别。"
+        }
+      ]
+    },
+    {
+      "question": "5. 选择、分类、修补分别会不会影响原始对象，单类别和所有得分不为正的边界如何？",
+      "answer": "SELECT 保存选中列表，但列表项沿用原对象字典引用，不是对象的独立副本。正文描述的选择过程本身没有给对象新增分类字段或改写 mask；后续通过选中项修改共享对象时，源列表中的同一对象也会观察到。多个查询可能重复选同一对象。category 非空时先按成员关系筛选，字符串 category 实际是子串判断；筛后为空又回退原列表。相似度选择没有空候选保护。\n\nCLASSIFY 直接给原对象字典添加或覆盖 class、class_score，源列表会受影响，返回项也仍是这些对象引用。主路径的分数是余弦相似度乘 100 后保留一位小数。先为每个对象选最高分的类别，再对实际出现的每类最多保留一个对象，所以同类多个目标会被压成一个，类别输出顺序不固定。\n\n仅一个候选类别时，先创建追加 other 的局部查询列表，不修改原类别列表。后续原本想处理“类别数仍为一”的分支对普通列表已不可达，不能据此声称单类别只选一个最佳目标或不会输出 other；other 没有专门排除。\n\n每类挑选最佳对象时从最高分 0 起步，只接受严格大于 0 的分数。若某个已出现类别的所有 class_score 都为 0 或负数，该类向结果加入的是文档所称的“空值”，并非正常对象，也没有直接丢弃该类。若所有对象得分都不为正，各个已出现类别都会留下这类空项。结果会写入状态，检查展示遇到空项会失败；后续 TAG 也可能因空项失败。正文没有交代这个“空值”的精确类型，不能擅自写成某个 Python 常量。另一个不同边界是对象输入为空：内部虽设局部整图列表却立即返回文档所称的“空对象”，不做推理，其精确类型同样未写明。\n\nREPLACE 不仅生成并保存新图，还只取第一对象的 mask 数组引用并原地阈值化：大于 0.5 的位置设为 255，再把当前不大于 0.5 的位置设为 0，然后转八位图。因此原对象的 mask 已改，所有共享引用可见；空对象列表会索引失败。不能把“输出是新图”解释成原对象数据完全不变。",
+      "citations": [
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "按类别匹配或图文相似度选择对象／完整过程",
+          "anchor": "section-24",
+          "lines": [
+            367,
+            369
+          ],
+          "supports": "筛选回退、查询重复、原对象引用和空候选边界。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/架构与状态.md",
+          "section": "候选对象与掩膜的共享内容",
+          "anchor": null,
+          "lines": [
+            87,
+            95
+          ],
+          "supports": "明确说明选择不复制字典、分类原地写字段、修补改 mask。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "给候选对象分配类别并每类取一项／完整过程",
+          "anchor": "section-30",
+          "lines": [
+            465,
+            467
+          ],
+          "supports": "原地分类、单类 other、不可达特例、非正分空项与检查失败。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "把分类标签和框画到图像副本／完整过程",
+          "anchor": "section-31",
+          "lines": [
+            483,
+            483
+          ],
+          "supports": "TAG 遇到空项或缺字段会失败。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "用文字引导修补第一个选中对象／完整过程",
+          "anchor": "section-33",
+          "lines": [
+            511,
+            515
+          ],
+          "supports": "只取首对象、原地阈值化 mask、保存新图和未调用的混合辅助方法。"
+        }
+      ]
+    },
+    {
+      "question": "6. 列表步骤的数量限制和生成概率指标能保证什么？",
+      "answer": "LIST 的 max 只是填进提示的文字要求，不能保证结果长度不超 max，也不能保证知识内容正确、无重复、非空或解析完整。实际请求 text-davinci-002，最多 256 token，取第一条文本，只去两端换行，再按“逗号加一个空格”拆分；不强制截断，不专门处理换行列表、裸逗号、重复项或空字符串。token 数请求限制不是类别项数的硬限制。okDet 模板的默认 20 和写死的 4、10、1、7 都遵守这个边界；后续分类每类最多留一个，也不能保证所有目标都被可靠标注。\n\n程序生成器另用 text-davinci-003，请求最多 512 token，返回程序文本和第一条补全的概率统计。mean 是选中 token 对数概率的平均值再取自然指数；sum 是求和再取自然指数，其他方式报未实现错误。这只描述客户端提供的生成 token 概率统计，不是视觉结论、程序语法、步骤合法性或执行成功的保证。四个入口丢弃该指标；生成器也不验证程序、不自动纠错或根据执行结果重生成。\n\n统计先找结束符，只纳入结束符之前的 token。未找到结束符时因使用最后 token 的下标作切片终点，会漏掉最后一个 token；空 token 列表使下标未赋值；首 token 就是结束符时切片为空，正文只说受 NumPy 空聚合规则影响。结束符具体是什么、空聚合各模式的确切结果，不能仅凭文档回答，见 G1。",
+      "citations": [
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "用语言模型列出外部知识候选／完整过程",
+          "anchor": "section-29",
+          "lines": [
+            449,
+            449
+          ],
+          "supports": "LIST 的提示上限、模型、token 请求限制、拆分规则与不截断。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/prompts/knowtag.py.md",
+          "section": "保存的示例及其实际差异／完整过程",
+          "anchor": "section-1",
+          "lines": [
+            17,
+            17
+          ],
+          "supports": "默认和明确列表上限、每类最多一项，不保证所有目标标完。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/utils.py.md",
+          "section": "用少量示例提示生成整段程序／完整过程",
+          "anchor": "section-4",
+          "lines": [
+            55,
+            57
+          ],
+          "supports": "生成概率的算法、遗漏末 token、空列表边界和不保证正确。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/跨模块流程.md",
+          "section": "双图判断的一次完整任务",
+          "anchor": null,
+          "lines": [
+            5,
+            5
+          ],
+          "supports": "入口丢弃生成指标；四个入口各第7个单元格也逐一说明。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/notebooks/gqa.ipynb.md",
+          "section": "第7个单元格／完整过程",
+          "anchor": "section-8",
+          "lines": [
+            105,
+            105
+          ],
+          "supports": "gqa 丢弃概率指标。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/notebooks/image_editing.ipynb.md",
+          "section": "第7个单元格／完整过程",
+          "anchor": "section-8",
+          "lines": [
+            105,
+            105
+          ],
+          "supports": "imageEdit 丢弃概率指标。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/notebooks/ok_det.ipynb.md",
+          "section": "第7个单元格／完整过程",
+          "anchor": "section-8",
+          "lines": [
+            105,
+            105
+          ],
+          "supports": "okDet 丢弃概率指标。"
+        }
+      ]
+    },
+    {
+      "question": "7. 只有候选框没有伴随图时，计数在普通与检查模式各会发生什么？",
+      "answer": "假设候选框状态项存在且能取长度：普通模式直接取其长度，把整数数量写入输出状态并返回，不需要任何图片，也不检查各项是否真的是框。\n\n检查模式也先取长度并写入数量，随后为展示读取框状态名加 _IMAGE 的伴随图。缺图时发生键错误，不能正常返回数量与展示；错误向整段执行器传播，后续步骤不执行，已经写入的数量保留，不回滚。\n\n跨步骤看，普通 LOC 无论检查开关都会建立伴随图；Loc2 则不会建立。不过 okDet 的登记表没有 COUNT，所以不能仅凭 Loc2 和 COUNT 的接口差异就声称默认 okDet 程序会执行到这个缺图错误：若直接在默认 okDet 程序里写 COUNT，会先因步骤未登记而失败。题设可由自备框状态配合支持 COUNT 的任务形成。",
+      "citations": [
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "统计已有候选框数量／完整过程",
+          "anchor": "section-12",
+          "lines": [
+            175,
+            179
+          ],
+          "supports": "先写数量；普通不需图；检查缺伴随图时报键错误。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/utils.py.md",
+          "section": "逐行分派步骤并返回最后一行结果／完整过程",
+          "anchor": "section-3",
+          "lines": [
+            43,
+            43
+          ],
+          "supports": "异常中断后续步骤，不回滚。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "定位文字描述的目标并保存候选框；为外部知识标注提供对象列表／完整过程",
+          "anchor": "section-10",
+          "lines": [
+            143,
+            159
+          ],
+          "supports": "普通 LOC 建 _IMAGE，Loc2 不建。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "按任务创建并登记允许的步骤／完整过程",
+          "anchor": "section-34",
+          "lines": [
+            531,
+            531
+          ],
+          "supports": "gqa 登记 COUNT，okDet 未登记 COUNT，未登记步骤会键错误。"
+        }
+      ]
+    },
+    {
+      "question": "8. 哪些提示示例有具体错误，怎么影响系统？",
+      "answer": "gqa 的第二段（分别检测火车与栅栏并合计）把组合结果写到 ANSWER2，最终却读不存在的 ANSWER；若照搬执行且没有该状态项，会读缺失变量失败。两段“猫下方查垫子”的判断在大于零后多出 and，正文明确说表达式无效；照搬可能在表达式求值阶段失败。另外，“猫在垫子上方”和相邻“猫下方查垫子”的两个字符串间漏逗号，实际合成一个列表元素，导致十九个字符串承载二十个问答片段；all 会带入全部坏片段，随机模式的抽样单位也是字符串，不再与问答片段一一对应。后方裁图无深度算法、上下裁图空框均取左半，是提示意图与工具实际能力不一致，正文已明确交代。\n\nnlvr 第六例（冰雪奇缘角色的包）在右图问答中把 image 写成 Image；实际 VQA 读取小写 image，照搬会缺键。“有一图”按恰好一图为真的异或解释是文档明确规则，不能另当成已经确认的示例错误。\n\nimgedit 第二例虽然选出了 Brad Pitt 的对象列表，第二次贴表情却仍引用 Nicole Kidman 的列表，所以不会按文字要求把墨镜表情贴给另一个人。第十例文字要求换成卡车，程序修补提示却仍是蓝巴士；即使程序正常执行，目标指令也与文字要求不符。\n\nknowtag 文档未列出可定位的拼写、错变量或指令与程序不符的具体错误；它列出的是能力和接口限制：列表上限非硬截断、分类每类最多一项且可能有空项，不能保证全部目标逐一标完。不能把这些限制改称已经证实的某一示例文本错误，也不能据此证明十三例全无错误。\n\n提示示例只作为文本引导模型，在导入时不执行；因此示例有错不会因“导入提示”自动触发视觉程序异常。实际问答入口都选 all，错误文本会进入生成提示。生成器不核验引用、语法或指令符合性，不自动修正；若新程序学到并重复这些错误，可能造成缺变量、参数缺键、无效表达式或编辑错对象/错目标，异常会中断后续行且不恢复已写状态。文档没有实验数据证明错误一定会被复现，不能断言每次生成必然失败。",
+      "citations": [
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/prompts/gqa.py.md",
+          "section": "保存的示例及其实际差异／完整过程",
+          "anchor": "section-1",
+          "lines": [
+            15,
+            17
+          ],
+          "supports": "错变量、多余 and、缺逗号导致十九字符串/二十片段及工具名与行为差异。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/prompts/gqa.py.md",
+          "section": "组装本次提示／完整过程",
+          "anchor": "section-2",
+          "lines": [
+            29,
+            29
+          ],
+          "supports": "all、随机字符串抽样、不执行也不修复示例。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/prompts/nlvr.py.md",
+          "section": "保存的示例及其实际差异／完整过程",
+          "anchor": "section-1",
+          "lines": [
+            15,
+            17
+          ],
+          "supports": "第六例 Image 参数错误，异或含义与示例不自动执行。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/prompts/imgedit.py.md",
+          "section": "保存的示例及其实际差异／完整过程",
+          "anchor": "section-1",
+          "lines": [
+            15,
+            17
+          ],
+          "supports": "第二例错用 Nicole 列表、第十例卡车与蓝巴士不符。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/prompts/knowtag.py.md",
+          "section": "保存的示例及其实际差异／完整过程",
+          "anchor": "section-1",
+          "lines": [
+            15,
+            17
+          ],
+          "supports": "十三例概述和数量/分类限制，未列具体模板错误。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/utils.py.md",
+          "section": "用少量示例提示生成整段程序／完整过程",
+          "anchor": "section-4",
+          "lines": [
+            55,
+            57
+          ],
+          "supports": "没有验证或自动修复，也没有保证结果正确。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/utils.py.md",
+          "section": "逐行分派步骤并返回最后一行结果／完整过程",
+          "anchor": "section-3",
+          "lines": [
+            43,
+            43
+          ],
+          "supports": "生成错误一旦在执行时触发，后续停止而状态不回滚。"
+        }
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "id": "G1",
+      "type": "无法仅凭文档确定的数值与标记",
+      "questions": [
+        6
+      ],
+      "description": "概率计算只称“结束符”，没有给出其确切 token 文本或判定方式；首 token 是结束符时只说“NumPy 的空聚合规则影响结果”，没有分别说明 mean、sum 的确切结果。空 token 列表的下标未赋值、无结束符漏最后 token 已明确，不属于缺口。",
+      "impact": "可解释统计的大体算法与不保证正确性，但不能独立手算所有退化输入的精确返回值，不能凭外部 NumPy 常识补入答案。",
+      "citations": [
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/utils.py.md",
+          "section": "用少量示例提示生成整段程序／完整过程",
+          "anchor": "section-4",
+          "lines": [
+            57,
+            57
+          ],
+          "supports": "结束符及空聚合规则留白。"
+        }
+      ]
+    },
+    {
+      "id": "G2",
+      "type": "未解释概念",
+      "questions": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "description": "生成器与 LIST 给出温度、top-p 的数值，没有解释它们的含义或与采样的关系。视觉步骤用到张量、二范数归一化、GrabCut、引导尺度，术语说明没有逐项解释这些概念。这里报告的是基础编程读者理解调用过程的障碍，不要求补写仓库外模型训练原理。",
+      "impact": "读者能复述参数和顺序，但不能仅凭正文理解这些参数或中间数据为何这样使用；不能自行给出教学性解释。",
+      "citations": [
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/utils.py.md",
+          "section": "用少量示例提示生成整段程序／完整过程",
+          "anchor": "section-4",
+          "lines": [
+            55,
+            55
+          ],
+          "supports": "温度和 top-p 仅给数值。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "按类别匹配或图文相似度选择对象／完整过程",
+          "anchor": "section-24",
+          "lines": [
+            369,
+            369
+          ],
+          "supports": "张量、二范数与特征矩阵乘法。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "保留选中对象颜色并把其他区域变灰／完整过程",
+          "anchor": "section-25",
+          "lines": [
+            385,
+            385
+          ],
+          "supports": "描述 GrabCut 配置和标签使用，但未解释概念及标签含义。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "用文字引导修补第一个选中对象／完整过程",
+          "anchor": "section-33",
+          "lines": [
+            513,
+            513
+          ],
+          "supports": "给出引导尺度但不说明其意义。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/术语说明.md",
+          "section": "术语说明",
+          "anchor": null,
+          "lines": [
+            3,
+            3
+          ],
+          "supports": "已有解释覆盖共享状态、框、掩膜、交并比、特征、token 等，未覆盖上述术语。"
+        }
+      ]
+    },
+    {
+      "id": "G3",
+      "type": "提示内容未完整展开",
+      "questions": [
+        1,
+        8
+      ],
+      "description": "四个提示文件主要按意图列举示例，并指出部分已知差异，没有把每个示例的全部步骤、变量对应、参数文字和表达式完整展开。imgedit 还说四种表情缩写对应素材名，却不列出具体缩写与素材文件名的映射。gqa 可以定位错变量、多余 and 与拼接问题，但无法仅凭文档复原两段错误表达式的完整文本或独立逐项检查所有示例。",
+      "impact": "八题中的已记载错误可以回答；“哪些示例所有字段都正确”、完整提示究竟是什么、具体表情缩写如何使用，不能仅凭这些正文确定。knowtag 未列具体错误不等于已经独立证明其示例无误。",
+      "citations": [
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/prompts/gqa.py.md",
+          "section": "保存的示例及其实际差异／完整过程",
+          "anchor": "section-1",
+          "lines": [
+            15,
+            17
+          ],
+          "supports": "以意图列举二十个片段，局部说明错误。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/prompts/nlvr.py.md",
+          "section": "保存的示例及其实际差异／完整过程",
+          "anchor": "section-1",
+          "lines": [
+            15,
+            17
+          ],
+          "supports": "十二例为自然语言过程概述，未展开全部参数与变量。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/prompts/imgedit.py.md",
+          "section": "保存的示例及其实际差异／完整过程",
+          "anchor": "section-1",
+          "lines": [
+            15,
+            17
+          ],
+          "supports": "表情缩写和素材名未列具体映射；十例为概述。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/prompts/knowtag.py.md",
+          "section": "保存的示例及其实际差异／完整过程",
+          "anchor": "section-1",
+          "lines": [
+            15,
+            17
+          ],
+          "supports": "十三例按主题列出，未逐步展开所有模板内容。"
+        }
+      ]
+    },
+    {
+      "id": "G4",
+      "type": "程序文本到解析行为的说明衔接不足",
+      "questions": [
+        2,
+        8
+      ],
+      "description": "解析章节按“第一个、第三个、第五个到倒数第四个符号”说明位置，但未给一条完整程序行及其词法符号序列，也未明确说明这些符号中是否包括行尾标记及所述区间终点是否包含。提示文档又未给完整逐行示例，基础编程读者无法仅凭文档逐符号复核这个切片。",
+      "impact": "可理解按步骤名分派、参数配对与空行会失败，但无法独立精确重建所有输入格式的解析边界；不能用自己对 Python 词法器的认识补全文字。",
+      "citations": [
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "从一行程序取出步骤和参数／完整过程",
+          "anchor": "section-2",
+          "lines": [
+            33,
+            33
+          ],
+          "supports": "固定符号位置与配对规则，没有具体符号序列示例。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/prompts/gqa.py.md",
+          "section": "保存的示例及其实际差异／完整过程",
+          "anchor": "section-1",
+          "lines": [
+            15,
+            17
+          ],
+          "supports": "示例未提供可供逐符号追踪的完整行。"
+        }
+      ]
+    },
+    {
+      "id": "G5",
+      "type": "返回值与状态的精确类型未交代",
+      "questions": [
+        5
+      ],
+      "description": "CLASSIFY 在对象列表为空时写“立即返回空对象”，未说明是空列表还是专用空值，也未清楚交代这条早退路径最终如何形成状态和检查返回。每类得分全不为正时写“加入空值”，同样未给精确类型。这两种空边界的表述不能自行当成同一种对象。",
+      "impact": "能确定不做空输入推理、非正分类别留下空项且检查展示失败；不能给空输入或空项的精确 Python 返回值、状态形状或早退后的检查结果。",
+      "citations": [
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "给候选对象分配类别并每类取一项／完整过程",
+          "anchor": "section-30",
+          "lines": [
+            465,
+            467
+          ],
+          "supports": "空对象早退与非正分空项均未指定精确类型。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "准备视觉模型与处理能力",
+          "anchor": null,
+          "lines": [
+            3,
+            3
+          ],
+          "supports": "一般说明称状态先写入、检查一般返回结果与展示，不能替代具体早退契约。"
+        }
+      ]
+    },
+    {
+      "id": "G6",
+      "type": "跨模块约束缺少集中契约与直接导航",
+      "questions": [
+        3,
+        7
+      ],
+      "description": "Loc2 不产生 _IMAGE、COUNT 检查要读 _IMAGE、以及 okDet 没有登记 COUNT，分别位于不同步骤和注册段落；步骤章节没有把这三者集中说明或提供相互的直接链接。顺着总入口链接能读到同一大文件，因此不是文件缺失或死链；但必须自行合读才能避免把接口限制误写成默认 okDet 的必经失败。",
+      "impact": "第7题可以通过全文合读回答；仅从“外部知识定位无伴随图”跳到“okDet 的 COUNT 检查失败”，会遗漏未登记步骤先失败这一条件。",
+      "citations": [
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "为外部知识标注提供对象列表／完整过程",
+          "anchor": "section-11",
+          "lines": [
+            159,
+            159
+          ],
+          "supports": "无 _IMAGE。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "统计已有候选框数量／完整过程",
+          "anchor": "section-12",
+          "lines": [
+            175,
+            175
+          ],
+          "supports": "检查必须有伴随图。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/模块/engine/step_interpreters.py.md",
+          "section": "按任务创建并登记允许的步骤／完整过程",
+          "anchor": "section-34",
+          "lines": [
+            531,
+            531
+          ],
+          "supports": "okDet 没有 COUNT，gqa 有 COUNT。"
+        },
+        {
+          "path": "F:/TranslatorCode/examples/visprog自然语言仓库/跨模块流程.md",
+          "section": "外部知识目标标注",
+          "anchor": null,
+          "lines": [
+            41,
+            47
+          ],
+          "supports": "给出主路径及步骤模块入口，未集中交代以上兼容约束。"
+        }
+      ],
+      "severity": "阅读导航问题；不是无法作答或实际断链"
+    }
+  ],
+  "validation": {
+    "answers": 8,
+    "gaps": 6,
+    "markdown_files_read": 28,
+    "citations_checked": 63,
+    "citation_check": "全部引用文件均在允许目录内；行号范围有效；所填章节锚点均存在。章节内容与论断人工对照。",
+    "local_markdown_links_checked": 107,
+    "broken_local_markdown_links": [],
+    "json_check": "写入前在内存中完成 JSON 序列化与反序列化，检查必需字段、八个答案和六个缺口；为遵守输入阅读范围，不回读输出 JSON 文件。",
+    "execution_tests": "未执行项目代码或依赖测试；本次为文档独立阅读，不核验交付文本与原始源码是否一致。"
+  }
+}

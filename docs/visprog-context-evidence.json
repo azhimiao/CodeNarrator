@@ -1,0 +1,1296 @@
+{
+  "file": "engine/utils.py",
+  "sha256": "343ff9f7259907c36aaf2cd522235b02540e13481bec6fa95ee41453dba6ea97",
+  "packet": "b72c5c684e86cae5bdeb.json",
+  "source": "import os\r\nfrom PIL import Image\r\nimport openai\r\nimport numpy as np\r\nimport copy\r\n\r\nfrom .step_interpreters import register_step_interpreters, parse_step\r\n\r\n\r\nclass Program:\r\n    def __init__(self,prog_str,init_state=None):\r\n        self.prog_str = prog_str\r\n        self.state = init_state if init_state is not None else dict()\r\n        self.instructions = self.prog_str.split('\\n')\r\n\r\n\r\nclass ProgramInterpreter:\r\n    def __init__(self,dataset='nlvr'):\r\n        self.step_interpreters = register_step_interpreters(dataset)\r\n\r\n    def execute_step(self,prog_step,inspect):\r\n        step_name = parse_step(prog_step.prog_str,partial=True)['step_name']\r\n        print(step_name)\r\n        return self.step_interpreters[step_name].execute(prog_step,inspect)\r\n\r\n    def execute(self,prog,init_state,inspect=False):\r\n        if isinstance(prog,str):\r\n            prog = Program(prog,init_state)\r\n        else:\r\n            assert(isinstance(prog,Program))\r\n\r\n        prog_steps = [Program(instruction,init_state=prog.state) \\\r\n            for instruction in prog.instructions]\r\n\r\n        html_str = '<hr>'\r\n        for prog_step in prog_steps:\r\n            if inspect:\r\n                step_output, step_html = self.execute_step(prog_step,inspect)\r\n                html_str += step_html + '<hr>'\r\n            else:\r\n                step_output = self.execute_step(prog_step,inspect)\r\n\r\n        if inspect:\r\n            return step_output, prog.state, html_str\r\n\r\n        return step_output, prog.state\r\n\r\n\r\nclass ProgramGenerator():\r\n    def __init__(self,prompter,temperature=0.7,top_p=0.5,prob_agg='mean'):\r\n        openai.api_key = os.getenv(\"OPENAI_API_KEY\")\r\n        self.prompter = prompter\r\n        self.temperature = temperature\r\n        self.top_p = top_p\r\n        self.prob_agg = prob_agg\r\n\r\n    def compute_prob(self,response):\r\n        eos = '<|endoftext|>'\r\n        for i,token in enumerate(response.choices[0]['logprobs']['tokens']):\r\n            if token==eos:\r\n                break\r\n\r\n        if self.prob_agg=='mean':\r\n            agg_fn = np.mean\r\n        elif self.prob_agg=='sum':\r\n            agg_fn = np.sum\r\n        else:\r\n            raise NotImplementedError\r\n\r\n        return np.exp(agg_fn(\r\n            response.choices[0]['logprobs']['token_logprobs'][:i]))\r\n\r\n    def generate(self,inputs):\r\n        response = openai.Completion.create(\r\n            model=\"text-davinci-003\",\r\n            prompt=self.prompter(inputs),\r\n            temperature=self.temperature,\r\n            max_tokens=512,\r\n            top_p=self.top_p,\r\n            frequency_penalty=0,\r\n            presence_penalty=0,\r\n            n=1,\r\n            logprobs=1\r\n        )\r\n\r\n        prob = self.compute_prob(response)\r\n        prog = response.choices[0]['text'].lstrip('\\n').rstrip('\\n')\r\n        return prog, prob\r\n    ",
+  "units": [
+    {
+      "id": "bfc232e6b1404b6807e2",
+      "file": "engine/utils.py",
+      "kind": "Module",
+      "name": null,
+      "parent": null,
+      "start_line": 1,
+      "end_line": 89,
+      "start_byte": 0,
+      "end_byte": null
+    },
+    {
+      "id": "2dc25ff948b55142dcee",
+      "file": "engine/utils.py",
+      "kind": "Import",
+      "name": null,
+      "parent": "bfc232e6b1404b6807e2",
+      "start_line": 1,
+      "end_line": 1,
+      "start_byte": 0,
+      "end_byte": 9
+    },
+    {
+      "id": "7fe432973249a7df8d72",
+      "file": "engine/utils.py",
+      "kind": "ImportFrom",
+      "name": null,
+      "parent": "bfc232e6b1404b6807e2",
+      "start_line": 2,
+      "end_line": 2,
+      "start_byte": 0,
+      "end_byte": 21
+    },
+    {
+      "id": "468f3ac3b6615694de8b",
+      "file": "engine/utils.py",
+      "kind": "Import",
+      "name": null,
+      "parent": "bfc232e6b1404b6807e2",
+      "start_line": 3,
+      "end_line": 3,
+      "start_byte": 0,
+      "end_byte": 13
+    },
+    {
+      "id": "e5404e3b69fc2346ec09",
+      "file": "engine/utils.py",
+      "kind": "Import",
+      "name": null,
+      "parent": "bfc232e6b1404b6807e2",
+      "start_line": 4,
+      "end_line": 4,
+      "start_byte": 0,
+      "end_byte": 18
+    },
+    {
+      "id": "86e29a07cb21ea0afcb3",
+      "file": "engine/utils.py",
+      "kind": "Import",
+      "name": null,
+      "parent": "bfc232e6b1404b6807e2",
+      "start_line": 5,
+      "end_line": 5,
+      "start_byte": 0,
+      "end_byte": 11
+    },
+    {
+      "id": "c2f595289978e4a505fc",
+      "file": "engine/utils.py",
+      "kind": "ImportFrom",
+      "name": null,
+      "parent": "bfc232e6b1404b6807e2",
+      "start_line": 7,
+      "end_line": 7,
+      "start_byte": 0,
+      "end_byte": 69
+    },
+    {
+      "id": "a0a63d658c3d8bc25291",
+      "file": "engine/utils.py",
+      "kind": "ClassDef",
+      "name": "Program",
+      "parent": "bfc232e6b1404b6807e2",
+      "start_line": 10,
+      "end_line": 14,
+      "start_byte": 0,
+      "end_byte": 53
+    },
+    {
+      "id": "e44dcf7dd01adfe1b94b",
+      "file": "engine/utils.py",
+      "kind": "FunctionDef",
+      "name": "__init__",
+      "parent": "a0a63d658c3d8bc25291",
+      "start_line": 11,
+      "end_line": 14,
+      "start_byte": 4,
+      "end_byte": 53
+    },
+    {
+      "id": "d6510d1e5216877b278f",
+      "file": "engine/utils.py",
+      "kind": "Constant",
+      "name": null,
+      "parent": "e44dcf7dd01adfe1b94b",
+      "start_line": 11,
+      "end_line": 11,
+      "start_byte": 42,
+      "end_byte": 46
+    },
+    {
+      "id": "6288305bed61b7296199",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "e44dcf7dd01adfe1b94b",
+      "start_line": 12,
+      "end_line": 12,
+      "start_byte": 8,
+      "end_byte": 32
+    },
+    {
+      "id": "f59bf23b2994b9cf220e",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "e44dcf7dd01adfe1b94b",
+      "start_line": 13,
+      "end_line": 13,
+      "start_byte": 8,
+      "end_byte": 69
+    },
+    {
+      "id": "b14db249c72bc6ab6b85",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "f59bf23b2994b9cf220e",
+      "start_line": 13,
+      "end_line": 13,
+      "start_byte": 63,
+      "end_byte": 69
+    },
+    {
+      "id": "42bcc9afd8ce572c0128",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "e44dcf7dd01adfe1b94b",
+      "start_line": 14,
+      "end_line": 14,
+      "start_byte": 8,
+      "end_byte": 53
+    },
+    {
+      "id": "dadf36e61b4ced54b43a",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "42bcc9afd8ce572c0128",
+      "start_line": 14,
+      "end_line": 14,
+      "start_byte": 28,
+      "end_byte": 53
+    },
+    {
+      "id": "cb4f2946ea5c91485531",
+      "file": "engine/utils.py",
+      "kind": "ClassDef",
+      "name": "ProgramInterpreter",
+      "parent": "bfc232e6b1404b6807e2",
+      "start_line": 17,
+      "end_line": 46,
+      "start_byte": 0,
+      "end_byte": 38
+    },
+    {
+      "id": "2b52c8d5190f69944997",
+      "file": "engine/utils.py",
+      "kind": "FunctionDef",
+      "name": "__init__",
+      "parent": "cb4f2946ea5c91485531",
+      "start_line": 18,
+      "end_line": 19,
+      "start_byte": 4,
+      "end_byte": 68
+    },
+    {
+      "id": "de06ccdba4ea83a0ef71",
+      "file": "engine/utils.py",
+      "kind": "Constant",
+      "name": null,
+      "parent": "2b52c8d5190f69944997",
+      "start_line": 18,
+      "end_line": 18,
+      "start_byte": 30,
+      "end_byte": 36
+    },
+    {
+      "id": "dceb819e386a55087aa3",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "2b52c8d5190f69944997",
+      "start_line": 19,
+      "end_line": 19,
+      "start_byte": 8,
+      "end_byte": 68
+    },
+    {
+      "id": "44fff98b27128a82d4df",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "dceb819e386a55087aa3",
+      "start_line": 19,
+      "end_line": 19,
+      "start_byte": 33,
+      "end_byte": 68
+    },
+    {
+      "id": "444f99289d093a9a5a7f",
+      "file": "engine/utils.py",
+      "kind": "FunctionDef",
+      "name": "execute_step",
+      "parent": "cb4f2946ea5c91485531",
+      "start_line": 21,
+      "end_line": 24,
+      "start_byte": 4,
+      "end_byte": 75
+    },
+    {
+      "id": "09e7b8a0dcdd62da2cb9",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "444f99289d093a9a5a7f",
+      "start_line": 22,
+      "end_line": 22,
+      "start_byte": 8,
+      "end_byte": 76
+    },
+    {
+      "id": "65a2ec49aee214c1f397",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "09e7b8a0dcdd62da2cb9",
+      "start_line": 22,
+      "end_line": 22,
+      "start_byte": 20,
+      "end_byte": 63
+    },
+    {
+      "id": "b1b77f6218290942a2dd",
+      "file": "engine/utils.py",
+      "kind": "Expr",
+      "name": null,
+      "parent": "444f99289d093a9a5a7f",
+      "start_line": 23,
+      "end_line": 23,
+      "start_byte": 8,
+      "end_byte": 24
+    },
+    {
+      "id": "bfbf121cd7069787ced6",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "b1b77f6218290942a2dd",
+      "start_line": 23,
+      "end_line": 23,
+      "start_byte": 8,
+      "end_byte": 24
+    },
+    {
+      "id": "a9ecfba1618e66db89ba",
+      "file": "engine/utils.py",
+      "kind": "Return",
+      "name": null,
+      "parent": "444f99289d093a9a5a7f",
+      "start_line": 24,
+      "end_line": 24,
+      "start_byte": 8,
+      "end_byte": 75
+    },
+    {
+      "id": "6797e7d5512640ca7dea",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "a9ecfba1618e66db89ba",
+      "start_line": 24,
+      "end_line": 24,
+      "start_byte": 15,
+      "end_byte": 75
+    },
+    {
+      "id": "f27c473a82ac6dd7a53f",
+      "file": "engine/utils.py",
+      "kind": "FunctionDef",
+      "name": "execute",
+      "parent": "cb4f2946ea5c91485531",
+      "start_line": 26,
+      "end_line": 46,
+      "start_byte": 4,
+      "end_byte": 38
+    },
+    {
+      "id": "48fd7f2cff4a8b4c427e",
+      "file": "engine/utils.py",
+      "kind": "Constant",
+      "name": null,
+      "parent": "f27c473a82ac6dd7a53f",
+      "start_line": 26,
+      "end_line": 26,
+      "start_byte": 45,
+      "end_byte": 50
+    },
+    {
+      "id": "36ad9ae8ad98c5c7ca14",
+      "file": "engine/utils.py",
+      "kind": "If",
+      "name": null,
+      "parent": "f27c473a82ac6dd7a53f",
+      "start_line": 27,
+      "end_line": 30,
+      "start_byte": 8,
+      "end_byte": 44
+    },
+    {
+      "id": "53a6abe00a35eb4fe9c1",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "36ad9ae8ad98c5c7ca14",
+      "start_line": 27,
+      "end_line": 27,
+      "start_byte": 11,
+      "end_byte": 31
+    },
+    {
+      "id": "0729aa59e4866775ff30",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "36ad9ae8ad98c5c7ca14",
+      "start_line": 28,
+      "end_line": 28,
+      "start_byte": 12,
+      "end_byte": 43
+    },
+    {
+      "id": "53af00ae8b8bdd9f130a",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "0729aa59e4866775ff30",
+      "start_line": 28,
+      "end_line": 28,
+      "start_byte": 19,
+      "end_byte": 43
+    },
+    {
+      "id": "7129403104658ca5f53b",
+      "file": "engine/utils.py",
+      "kind": "Assert",
+      "name": null,
+      "parent": "36ad9ae8ad98c5c7ca14",
+      "start_line": 30,
+      "end_line": 30,
+      "start_byte": 12,
+      "end_byte": 44
+    },
+    {
+      "id": "27d0f859f70dc47116d5",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "7129403104658ca5f53b",
+      "start_line": 30,
+      "end_line": 30,
+      "start_byte": 19,
+      "end_byte": 43
+    },
+    {
+      "id": "ebefa32d04bd6d2ba85e",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "f27c473a82ac6dd7a53f",
+      "start_line": 32,
+      "end_line": 33,
+      "start_byte": 8,
+      "end_byte": 49
+    },
+    {
+      "id": "9e65c529516a8e46ca37",
+      "file": "engine/utils.py",
+      "kind": "ListComp",
+      "name": null,
+      "parent": "ebefa32d04bd6d2ba85e",
+      "start_line": 32,
+      "end_line": 33,
+      "start_byte": 21,
+      "end_byte": 49
+    },
+    {
+      "id": "2a95daac723ed668f86e",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "9e65c529516a8e46ca37",
+      "start_line": 32,
+      "end_line": 32,
+      "start_byte": 22,
+      "end_byte": 64
+    },
+    {
+      "id": "f3998b282f964d464fb6",
+      "file": "engine/utils.py",
+      "kind": "comprehension",
+      "name": null,
+      "parent": "9e65c529516a8e46ca37",
+      "start_line": 33,
+      "end_line": 33,
+      "start_byte": 0,
+      "end_byte": null
+    },
+    {
+      "id": "73f390cb3894da9ff5b2",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "f27c473a82ac6dd7a53f",
+      "start_line": 35,
+      "end_line": 35,
+      "start_byte": 8,
+      "end_byte": 25
+    },
+    {
+      "id": "29b80ca1b55d5b34e237",
+      "file": "engine/utils.py",
+      "kind": "For",
+      "name": null,
+      "parent": "f27c473a82ac6dd7a53f",
+      "start_line": 36,
+      "end_line": 41,
+      "start_byte": 8,
+      "end_byte": 66
+    },
+    {
+      "id": "a09fe17e330a864c30a8",
+      "file": "engine/utils.py",
+      "kind": "If",
+      "name": null,
+      "parent": "29b80ca1b55d5b34e237",
+      "start_line": 37,
+      "end_line": 41,
+      "start_byte": 12,
+      "end_byte": 66
+    },
+    {
+      "id": "4b95f85fe4b5c1f578d0",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "a09fe17e330a864c30a8",
+      "start_line": 38,
+      "end_line": 38,
+      "start_byte": 16,
+      "end_byte": 77
+    },
+    {
+      "id": "116af4c800a737e42083",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "4b95f85fe4b5c1f578d0",
+      "start_line": 38,
+      "end_line": 38,
+      "start_byte": 41,
+      "end_byte": 77
+    },
+    {
+      "id": "0a7c5efe64beb02a3ea8",
+      "file": "engine/utils.py",
+      "kind": "AugAssign",
+      "name": null,
+      "parent": "a09fe17e330a864c30a8",
+      "start_line": 39,
+      "end_line": 39,
+      "start_byte": 16,
+      "end_byte": 46
+    },
+    {
+      "id": "e6107ec073f20423b018",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "a09fe17e330a864c30a8",
+      "start_line": 41,
+      "end_line": 41,
+      "start_byte": 16,
+      "end_byte": 66
+    },
+    {
+      "id": "a59142d946c30e5f8e61",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "e6107ec073f20423b018",
+      "start_line": 41,
+      "end_line": 41,
+      "start_byte": 30,
+      "end_byte": 66
+    },
+    {
+      "id": "bd3f92ffd5183422b7d7",
+      "file": "engine/utils.py",
+      "kind": "If",
+      "name": null,
+      "parent": "f27c473a82ac6dd7a53f",
+      "start_line": 43,
+      "end_line": 44,
+      "start_byte": 8,
+      "end_byte": 52
+    },
+    {
+      "id": "dcb3e8d6dbb5cc86fb1c",
+      "file": "engine/utils.py",
+      "kind": "Return",
+      "name": null,
+      "parent": "bd3f92ffd5183422b7d7",
+      "start_line": 44,
+      "end_line": 44,
+      "start_byte": 12,
+      "end_byte": 52
+    },
+    {
+      "id": "56f13d5e26ed856c5563",
+      "file": "engine/utils.py",
+      "kind": "Return",
+      "name": null,
+      "parent": "f27c473a82ac6dd7a53f",
+      "start_line": 46,
+      "end_line": 46,
+      "start_byte": 8,
+      "end_byte": 38
+    },
+    {
+      "id": "15476c75ae286ce5ffef",
+      "file": "engine/utils.py",
+      "kind": "ClassDef",
+      "name": "ProgramGenerator",
+      "parent": "bfc232e6b1404b6807e2",
+      "start_line": 49,
+      "end_line": 88,
+      "start_byte": 0,
+      "end_byte": 25
+    },
+    {
+      "id": "70f2dec9bcfa96e7d2cb",
+      "file": "engine/utils.py",
+      "kind": "FunctionDef",
+      "name": "__init__",
+      "parent": "15476c75ae286ce5ffef",
+      "start_line": 50,
+      "end_line": 55,
+      "start_byte": 4,
+      "end_byte": 32
+    },
+    {
+      "id": "0dc26a25e5f080b93eed",
+      "file": "engine/utils.py",
+      "kind": "Constant",
+      "name": null,
+      "parent": "70f2dec9bcfa96e7d2cb",
+      "start_line": 50,
+      "end_line": 50,
+      "start_byte": 43,
+      "end_byte": 46
+    },
+    {
+      "id": "ec0dd28342556ec5282d",
+      "file": "engine/utils.py",
+      "kind": "Constant",
+      "name": null,
+      "parent": "70f2dec9bcfa96e7d2cb",
+      "start_line": 50,
+      "end_line": 50,
+      "start_byte": 53,
+      "end_byte": 56
+    },
+    {
+      "id": "2d9a3baa6edb0939e7d3",
+      "file": "engine/utils.py",
+      "kind": "Constant",
+      "name": null,
+      "parent": "70f2dec9bcfa96e7d2cb",
+      "start_line": 50,
+      "end_line": 50,
+      "start_byte": 66,
+      "end_byte": 72
+    },
+    {
+      "id": "a6e5bf0ea0ed43ed2c11",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "70f2dec9bcfa96e7d2cb",
+      "start_line": 51,
+      "end_line": 51,
+      "start_byte": 8,
+      "end_byte": 52
+    },
+    {
+      "id": "a734c1777e79a7e397f2",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "a6e5bf0ea0ed43ed2c11",
+      "start_line": 51,
+      "end_line": 51,
+      "start_byte": 25,
+      "end_byte": 52
+    },
+    {
+      "id": "7e416147907597662144",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "70f2dec9bcfa96e7d2cb",
+      "start_line": 52,
+      "end_line": 52,
+      "start_byte": 8,
+      "end_byte": 32
+    },
+    {
+      "id": "453e13f25fdafb822652",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "70f2dec9bcfa96e7d2cb",
+      "start_line": 53,
+      "end_line": 53,
+      "start_byte": 8,
+      "end_byte": 38
+    },
+    {
+      "id": "10988d5471d55945d161",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "70f2dec9bcfa96e7d2cb",
+      "start_line": 54,
+      "end_line": 54,
+      "start_byte": 8,
+      "end_byte": 26
+    },
+    {
+      "id": "a2f4791c05fb231744ec",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "70f2dec9bcfa96e7d2cb",
+      "start_line": 55,
+      "end_line": 55,
+      "start_byte": 8,
+      "end_byte": 32
+    },
+    {
+      "id": "bcf2fec1da319c15c6e8",
+      "file": "engine/utils.py",
+      "kind": "FunctionDef",
+      "name": "compute_prob",
+      "parent": "15476c75ae286ce5ffef",
+      "start_line": 57,
+      "end_line": 71,
+      "start_byte": 4,
+      "end_byte": 67
+    },
+    {
+      "id": "be54dcdb4cfd51de5767",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "bcf2fec1da319c15c6e8",
+      "start_line": 58,
+      "end_line": 58,
+      "start_byte": 8,
+      "end_byte": 29
+    },
+    {
+      "id": "3f1e2fa2721630b4f2c7",
+      "file": "engine/utils.py",
+      "kind": "For",
+      "name": null,
+      "parent": "bcf2fec1da319c15c6e8",
+      "start_line": 59,
+      "end_line": 61,
+      "start_byte": 8,
+      "end_byte": 21
+    },
+    {
+      "id": "3314384d1e4b4fbf725e",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "3f1e2fa2721630b4f2c7",
+      "start_line": 59,
+      "end_line": 59,
+      "start_byte": 23,
+      "end_byte": 75
+    },
+    {
+      "id": "bf563f9711e982831ee3",
+      "file": "engine/utils.py",
+      "kind": "If",
+      "name": null,
+      "parent": "3f1e2fa2721630b4f2c7",
+      "start_line": 60,
+      "end_line": 61,
+      "start_byte": 12,
+      "end_byte": 21
+    },
+    {
+      "id": "21ec98d9c36e594ac69f",
+      "file": "engine/utils.py",
+      "kind": "Break",
+      "name": null,
+      "parent": "bf563f9711e982831ee3",
+      "start_line": 61,
+      "end_line": 61,
+      "start_byte": 16,
+      "end_byte": 21
+    },
+    {
+      "id": "2966b5726c1a2a0b1006",
+      "file": "engine/utils.py",
+      "kind": "If",
+      "name": null,
+      "parent": "bcf2fec1da319c15c6e8",
+      "start_line": 63,
+      "end_line": 68,
+      "start_byte": 8,
+      "end_byte": 37
+    },
+    {
+      "id": "7e4fcab7052793d5d5bc",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "2966b5726c1a2a0b1006",
+      "start_line": 64,
+      "end_line": 64,
+      "start_byte": 12,
+      "end_byte": 28
+    },
+    {
+      "id": "8148808fc611cb9e8ab1",
+      "file": "engine/utils.py",
+      "kind": "If",
+      "name": null,
+      "parent": "2966b5726c1a2a0b1006",
+      "start_line": 65,
+      "end_line": 68,
+      "start_byte": 8,
+      "end_byte": 37
+    },
+    {
+      "id": "aac5bb4c3e167548f00c",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "8148808fc611cb9e8ab1",
+      "start_line": 66,
+      "end_line": 66,
+      "start_byte": 12,
+      "end_byte": 27
+    },
+    {
+      "id": "72cbbab43da8235640e5",
+      "file": "engine/utils.py",
+      "kind": "Raise",
+      "name": null,
+      "parent": "8148808fc611cb9e8ab1",
+      "start_line": 68,
+      "end_line": 68,
+      "start_byte": 12,
+      "end_byte": 37
+    },
+    {
+      "id": "539c6fe314d25cf865a1",
+      "file": "engine/utils.py",
+      "kind": "Return",
+      "name": null,
+      "parent": "bcf2fec1da319c15c6e8",
+      "start_line": 70,
+      "end_line": 71,
+      "start_byte": 8,
+      "end_byte": 67
+    },
+    {
+      "id": "7f584ce5eacbb1b6ee75",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "539c6fe314d25cf865a1",
+      "start_line": 70,
+      "end_line": 71,
+      "start_byte": 15,
+      "end_byte": 67
+    },
+    {
+      "id": "f3568b28af7e8c48c9a8",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "7f584ce5eacbb1b6ee75",
+      "start_line": 70,
+      "end_line": 71,
+      "start_byte": 22,
+      "end_byte": 66
+    },
+    {
+      "id": "a6da9454532be8c20c80",
+      "file": "engine/utils.py",
+      "kind": "FunctionDef",
+      "name": "generate",
+      "parent": "15476c75ae286ce5ffef",
+      "start_line": 73,
+      "end_line": 88,
+      "start_byte": 4,
+      "end_byte": 25
+    },
+    {
+      "id": "af64b38aa98778d8e8f3",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "a6da9454532be8c20c80",
+      "start_line": 74,
+      "end_line": 84,
+      "start_byte": 8,
+      "end_byte": 9
+    },
+    {
+      "id": "e56b15c0e632d7944e8e",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "af64b38aa98778d8e8f3",
+      "start_line": 74,
+      "end_line": 84,
+      "start_byte": 19,
+      "end_byte": 9
+    },
+    {
+      "id": "4712ac6fba135f67b19f",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "e56b15c0e632d7944e8e",
+      "start_line": 76,
+      "end_line": 76,
+      "start_byte": 19,
+      "end_byte": 40
+    },
+    {
+      "id": "9c5c1091b85295d39afe",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "a6da9454532be8c20c80",
+      "start_line": 86,
+      "end_line": 86,
+      "start_byte": 8,
+      "end_byte": 42
+    },
+    {
+      "id": "48e1d7d5723c73d31447",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "9c5c1091b85295d39afe",
+      "start_line": 86,
+      "end_line": 86,
+      "start_byte": 15,
+      "end_byte": 42
+    },
+    {
+      "id": "dafbc85c135ce72466e2",
+      "file": "engine/utils.py",
+      "kind": "Assign",
+      "name": null,
+      "parent": "a6da9454532be8c20c80",
+      "start_line": 87,
+      "end_line": 87,
+      "start_byte": 8,
+      "end_byte": 68
+    },
+    {
+      "id": "98116e952ef7a1e0f03e",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "dafbc85c135ce72466e2",
+      "start_line": 87,
+      "end_line": 87,
+      "start_byte": 15,
+      "end_byte": 68
+    },
+    {
+      "id": "7e20984803dc8e3c9b2a",
+      "file": "engine/utils.py",
+      "kind": "Call",
+      "name": null,
+      "parent": "98116e952ef7a1e0f03e",
+      "start_line": 87,
+      "end_line": 87,
+      "start_byte": 15,
+      "end_byte": 55
+    },
+    {
+      "id": "6b775298864115254570",
+      "file": "engine/utils.py",
+      "kind": "Return",
+      "name": null,
+      "parent": "a6da9454532be8c20c80",
+      "start_line": 88,
+      "end_line": 88,
+      "start_byte": 8,
+      "end_byte": 25
+    }
+  ],
+  "repository_context": {
+    "imports": [
+      {
+        "line": 1,
+        "module": "os",
+        "binding": "os",
+        "symbol": null,
+        "status": "external_or_unresolved",
+        "candidates": []
+      },
+      {
+        "line": 2,
+        "module": "PIL",
+        "binding": "Image",
+        "symbol": "Image",
+        "status": "external_or_unresolved",
+        "candidates": []
+      },
+      {
+        "line": 3,
+        "module": "openai",
+        "binding": "openai",
+        "symbol": null,
+        "status": "external_or_unresolved",
+        "candidates": []
+      },
+      {
+        "line": 4,
+        "module": "numpy",
+        "binding": "np",
+        "symbol": null,
+        "status": "external_or_unresolved",
+        "candidates": []
+      },
+      {
+        "line": 5,
+        "module": "copy",
+        "binding": "copy",
+        "symbol": null,
+        "status": "external_or_unresolved",
+        "candidates": []
+      },
+      {
+        "line": 7,
+        "module": "engine.step_interpreters",
+        "binding": "register_step_interpreters",
+        "symbol": "register_step_interpreters",
+        "status": "internal_candidate",
+        "candidates": [
+          "engine/step_interpreters.py"
+        ]
+      },
+      {
+        "line": 7,
+        "module": "engine.step_interpreters",
+        "binding": "parse_step",
+        "symbol": "parse_step",
+        "status": "internal_candidate",
+        "candidates": [
+          "engine/step_interpreters.py"
+        ]
+      }
+    ],
+    "imports_from": [
+      "engine/step_interpreters.py"
+    ],
+    "imported_by": [],
+    "neighbors": [
+      {
+        "file": "engine/step_interpreters.py",
+        "symbols": [
+          {
+            "name": "parse_step",
+            "kind": "FunctionDef",
+            "line": 22
+          },
+          {
+            "name": "html_step_name",
+            "kind": "FunctionDef",
+            "line": 41
+          },
+          {
+            "name": "html_output",
+            "kind": "FunctionDef",
+            "line": 46
+          },
+          {
+            "name": "html_var_name",
+            "kind": "FunctionDef",
+            "line": 51
+          },
+          {
+            "name": "html_arg_name",
+            "kind": "FunctionDef",
+            "line": 56
+          },
+          {
+            "name": "EvalInterpreter",
+            "kind": "ClassDef",
+            "line": 61
+          },
+          {
+            "name": "ResultInterpreter",
+            "kind": "ClassDef",
+            "line": 112
+          },
+          {
+            "name": "VQAInterpreter",
+            "kind": "ClassDef",
+            "line": 145
+          },
+          {
+            "name": "LocInterpreter",
+            "kind": "ClassDef",
+            "line": 195
+          },
+          {
+            "name": "Loc2Interpreter",
+            "kind": "ClassDef",
+            "line": 323
+          },
+          {
+            "name": "CountInterpreter",
+            "kind": "ClassDef",
+            "line": 346
+          },
+          {
+            "name": "CropInterpreter",
+            "kind": "ClassDef",
+            "line": 381
+          },
+          {
+            "name": "CropRightOfInterpreter",
+            "kind": "ClassDef",
+            "line": 439
+          },
+          {
+            "name": "CropLeftOfInterpreter",
+            "kind": "ClassDef",
+            "line": 471
+          },
+          {
+            "name": "CropAboveInterpreter",
+            "kind": "ClassDef",
+            "line": 503
+          },
+          {
+            "name": "CropBelowInterpreter",
+            "kind": "ClassDef",
+            "line": 534
+          },
+          {
+            "name": "CropFrontOfInterpreter",
+            "kind": "ClassDef",
+            "line": 565
+          },
+          {
+            "name": "CropInFrontInterpreter",
+            "kind": "ClassDef",
+            "line": 568
+          },
+          {
+            "name": "CropInFrontOfInterpreter",
+            "kind": "ClassDef",
+            "line": 571
+          },
+          {
+            "name": "CropBehindInterpreter",
+            "kind": "ClassDef",
+            "line": 574
+          },
+          {
+            "name": "CropAheadInterpreter",
+            "kind": "ClassDef",
+            "line": 578
+          },
+          {
+            "name": "SegmentInterpreter",
+            "kind": "ClassDef",
+            "line": 582
+          },
+          {
+            "name": "SelectInterpreter",
+            "kind": "ClassDef",
+            "line": 654
+          },
+          {
+            "name": "ColorpopInterpreter",
+            "kind": "ClassDef",
+            "line": 749
+          },
+          {
+            "name": "BgBlurInterpreter",
+            "kind": "ClassDef",
+            "line": 810
+          },
+          {
+            "name": "FaceDetInterpreter",
+            "kind": "ClassDef",
+            "line": 877
+          },
+          {
+            "name": "EmojiInterpreter",
+            "kind": "ClassDef",
+            "line": 952
+          },
+          {
+            "name": "ListInterpreter",
+            "kind": "ClassDef",
+            "line": 1012
+          },
+          {
+            "name": "ClassifyInterpreter",
+            "kind": "ClassDef",
+            "line": 1076
+          },
+          {
+            "name": "TagInterpreter",
+            "kind": "ClassDef",
+            "line": 1191
+          },
+          {
+            "name": "dummy",
+            "kind": "FunctionDef",
+            "line": 1249
+          },
+          {
+            "name": "ReplaceInterpreter",
+            "kind": "ClassDef",
+            "line": 1252
+          },
+          {
+            "name": "register_step_interpreters",
+            "kind": "FunctionDef",
+            "line": 1336
+          }
+        ]
+      }
+    ],
+    "call_sites": [
+      {
+        "expression": "self.prog_str.split",
+        "line": 14,
+        "status": "unresolved"
+      },
+      {
+        "expression": "register_step_interpreters",
+        "line": 19,
+        "status": "unresolved"
+      },
+      {
+        "expression": "print",
+        "line": 23,
+        "status": "unresolved"
+      },
+      {
+        "expression": "self.step_interpreters[step_name].execute",
+        "line": 24,
+        "status": "unresolved"
+      },
+      {
+        "expression": "isinstance",
+        "line": 27,
+        "status": "unresolved"
+      },
+      {
+        "expression": "os.getenv",
+        "line": 51,
+        "status": "unresolved"
+      },
+      {
+        "expression": "enumerate",
+        "line": 59,
+        "status": "unresolved"
+      },
+      {
+        "expression": "np.exp",
+        "line": 70,
+        "status": "unresolved"
+      },
+      {
+        "expression": "openai.Completion.create",
+        "line": 74,
+        "status": "unresolved"
+      },
+      {
+        "expression": "self.compute_prob",
+        "line": 86,
+        "status": "unresolved"
+      },
+      {
+        "expression": "response.choices[0]['text'].lstrip('\\n').rstrip",
+        "line": 87,
+        "status": "unresolved"
+      },
+      {
+        "expression": "dict",
+        "line": 13,
+        "status": "unresolved"
+      },
+      {
+        "expression": "parse_step",
+        "line": 22,
+        "status": "unresolved"
+      },
+      {
+        "expression": "Program",
+        "line": 28,
+        "status": "unresolved"
+      },
+      {
+        "expression": "isinstance",
+        "line": 30,
+        "status": "unresolved"
+      },
+      {
+        "expression": "Program",
+        "line": 32,
+        "status": "unresolved"
+      },
+      {
+        "expression": "agg_fn",
+        "line": 70,
+        "status": "unresolved"
+      },
+      {
+        "expression": "self.execute_step",
+        "line": 38,
+        "status": "unresolved"
+      },
+      {
+        "expression": "self.execute_step",
+        "line": 41,
+        "status": "unresolved"
+      },
+      {
+        "expression": "self.prompter",
+        "line": 76,
+        "status": "unresolved"
+      },
+      {
+        "expression": "response.choices[0]['text'].lstrip",
+        "line": 87,
+        "status": "unresolved"
+      }
+    ],
+    "limitations": [
+      "不等于运行时导入解析；未执行目标代码",
+      "不解析修改 sys.path、动态导入、重导出与插件注册",
+      "call_sites 只是调用位置，不是已解析调用图",
+      "目录组和分析批次不代表语义架构层"
+    ]
+  }
+}
