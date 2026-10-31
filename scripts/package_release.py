@@ -28,6 +28,9 @@ def main():
     runpy.run_path(str(ROOT / "scripts/package_skill.py"), run_name="__main__")
     output = ROOT / "dist/visprog自然语言仓库.zip"
     with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
+        license_file = ROOT / "LICENSE"
+        if license_file.is_file():
+            archive.write(license_file, "LICENSE")
         for path in sorted(product.rglob("*")):
             if path.is_file():
                 if path.suffix != ".md" and "许可原文" not in path.relative_to(product).parts:

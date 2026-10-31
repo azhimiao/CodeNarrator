@@ -4,6 +4,7 @@ import io
 import json
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -15,6 +16,12 @@ spec.loader.exec_module(n)
 
 
 class ToolTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Rebuild from committed source so a clean checkout needs no local artifacts.
+        subprocess.run([sys.executable, str(ROOT / "examples/build_demo.py")],
+                       cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
